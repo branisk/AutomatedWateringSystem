@@ -1,0 +1,10 @@
+#!/bin/sh
+
+sudo esptool.py --port /dev/ttyUSB0 erase_flash
+sudo esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash -z 0x1000 ~/AutomatedWateringSystem/micropython-1.13-espnow-g20-esp32.bin
+
+sudo ampy --port /dev/ttyUSB0 put ~/AutomatedWateringSystem/ssd1306.py
+sudo ampy --port /dev/ttyUSB0 put ~/AutomatedWateringSystem/CCS811.py
+sudo ampy --port /dev/ttyUSB0 put ~/AutomatedWateringSystem/bme280_float.py
+sudo ampy --port /dev/ttyUSB0 put boot.py
+sudo ampy --port /dev/ttyUSB0 put main.py
