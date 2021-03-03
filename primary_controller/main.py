@@ -12,10 +12,10 @@ import ssd1306
 #   Define pins for ESP32-WROOM32 Devkit
 SCK_PIN = 21
 SDA_PIN = 22
+NUM_MESSENGERS = 2
 
 peer_ac = b'|\x9e\xbd\xf1{\xd8'
 peer_sm = b'\xb8\xf0\t\x95\x99\xac'
-peer_sm_og = b'\x84\xcc\xa8]\x0e,'
 
 
 def main():
@@ -27,7 +27,11 @@ def main():
 
     while True:
         msg = esp.recv(2100)
-        if msg:
+
+        while (len(msg) < NUM_MESSENGERS)
+            sleep(1)
+
+        for i in range(0, NUM_MESSENGERS)
             mac = msg[0]
             string = msg[1]
             display_values_og(display, string)
@@ -37,11 +41,10 @@ def main():
                 display_moisture(display, string)
             else:
                 display_values_og(display, "Mac failure")
-        #else:
-        #    display_values_og(display, str(index))#display_values(display, msg[1])
+
         index+=1
         detect_malfunction()
-        time.sleep(3)
+        time.sleep(900) #   15 minutes
 
 def detect_malfunction():
     return

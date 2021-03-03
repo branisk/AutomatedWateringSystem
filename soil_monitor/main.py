@@ -60,7 +60,6 @@ def display_soil_moisture():
 def initialize_network():
     wlan = network.WLAN()
     wlan.active(True)
-    wlan.config(protocol=network.MODE_LR)
     return wlan
 
 def moisture_to_percent(soil_moisture):
