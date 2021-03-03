@@ -1,6 +1,7 @@
 import machine
 from machine import I2C, Pin, ADC
 import time
+from time import sleep
 #   Obtained from micropython repository
 import ssd1306
 import bme280_float as bme280
@@ -24,21 +25,20 @@ def main():
     ccs = initialize_ccs()
 
     esp = espnow.ESPNow()
-    time.sleep(1)
+    sleep(1)
     esp.init()
-    time.sleep(1)
+    sleep(1)
     peer_mc = b'\x10R\x1c^*\xbc'
     esp.add_peer(peer_mc)
 
     while True:
+        intial_time = time.clock()
         temp, humidity, pressure, co2, tvoc = calculate_values(bme, ccs)
         display_values(display, temp, humidity, pressure, co2, tvoc)
-        #index+=1;
         time.sleep(3)
-        #display.show()
         string = str(temp)+ " " + str(humidity) + " " + str(co2)
         esp.send(string)
-        deepsleep(3_600_600)
+        deepsleep(900 - (time.clock() - initial_time))  #   15 minutes
 
 def calculate_values(bme, ccs):
     co2 = "-1"
@@ -78,7 +78,6 @@ def initialize_bme():
 def initialize_network():
     wlan = network.WLAN()
     wlan.active(True)
-    wlan.config(protocol=network.MODE_LR)
     return wlan
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import machine
 from machine import I2C, Pin, ADC, deepsleep
+import time
 from time import sleep
 #   Obtained from micropython repository
 import ssd1306
@@ -34,12 +35,12 @@ def main():
     esp.add_peer(peer_mc)
 
     while True:
-        #moisture = display_soil_moisture() + "%"
+        intial_time = time.clock()
         moisture = get_soil_moisture() + "%"
         voltage = str(get_battery_voltage()) + "V"
         sleep(3)
         esp.send(moisture + " " + voltage)
-        deepsleep(3_600_000)    # 60 minutes
+        deepsleep(900 - (time.clock() - initial_time)    # 15 minutes
 
 def get_soil_moisture():
     soil_moisture = ADC(Pin(AIN_PIN));

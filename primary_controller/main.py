@@ -1,6 +1,7 @@
 import machine
 from machine import I2C, Pin, ADC, deepsleep
 import time
+from time import sleep
 import network
 from esp import espnow
 
@@ -14,37 +15,39 @@ SCK_PIN = 21
 SDA_PIN = 22
 NUM_MESSENGERS = 2
 
-peer_ac = b'|\x9e\xbd\xf1{\xd8'
-peer_sm = b'\xb8\xf0\t\x95\x99\xac'
+#   Mac addresses for espnow peers
+MAC_AIR_CONTROLLER = b'|\x9e\xbd\xf1{\xd8'
+MAC_SOIL_MONITOR = b'\xb8\xf0\t\x95\x99\xac'
 
 
 def main():
     display = initialize_oled()
     display_values_og(display, 'Initialized.')
     wlan, esp = initialize_network()
-    time.sleep(3)
+    sleep(3)
     index=0
 
     while True:
-        msg = esp.recv(2100)
+        intial_time = time.clock()
+        messages = []
 
-        while (len(msg) < NUM_MESSENGERS)
+        #   Wait to receive all messages
+        while (len(messages) < NUM_MESSENGERS):
+            messages.append(esp.recv(2100))
             sleep(1)
 
-        for i in range(0, NUM_MESSENGERS)
+        for msg in messages:
             mac = msg[0]
             string = msg[1]
-            display_values_og(display, string)
-            if mac == peer_ac:
-                display_values(display, string)
-            elif mac == peer_sm:
-                display_moisture(display, string)
+            if mac == MAC_AIR_CONTROLLER:
+                display_air_values(display, string)
+            elif mac == MAC_SOIL_MONITOR:
+                display_soil_values(display, string)
             else:
                 display_values_og(display, "Mac failure")
 
-        index+=1
         detect_malfunction()
-        time.sleep(900) #   15 minutes
+        sleep(900 - (time.clock() - initial_time)) #   15 minutes
 
 def detect_malfunction():
     return
@@ -54,13 +57,13 @@ def display_values_og(display, msg):
     display.text(msg, 1, 1, 1)
     display.show()
 
-def display_values(display, msg):
+def display_air_values(display, msg):
     display.fill(0)
     display.text("Temp: " + "RH:" + " CO2:", 1, 1, 1)
     display.text(msg, 10, 16, 1)
     display.show()
 
-def display_moisture(display, msg):
+def display_soil_moisture(display, msg):
     display.fill(0)
     display.text("Moisture: " + " " + "Voltage: ", 1, 1, 1)
     display.text(msg, 10, 16, 1)
@@ -76,7 +79,6 @@ def initialize_oled():
 def initialize_network():
     wlan = network.WLAN()
     wlan.active(True)
-    wlan.config(protocol=network.MODE_LR)
     esp = espnow.ESPNow()
     esp.init()
     return wlan, esp
